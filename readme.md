@@ -53,5 +53,5 @@ Rename to .env<BR>
 
 ```
 python fill_db.py
-python ask.py
+python chat.py
 ```

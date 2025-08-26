@@ -6,16 +6,31 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import streamlit as st
+
+# --- sqlite shim for Streamlit Cloud ---
+# Ensures we use a modern sqlite (from pysqlite3-binary) even if system sqlite is old
+try:
+    import sys
+    import pysqlite3  # provided by pysqlite3-binary
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except Exception:
+    # If pysqlite3-binary isn't available, we just proceed and let Chroma handle/raise
+    pass
+# ---------------------------------------
+
 import chromadb
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from openai import OpenAI
+
+
 
 # -------------------- Config --------------------
 env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path, override=True)
 
 # IMPORTANT: use the EXACT DB path + collection you indexed earlier
+
 CHROMA_PATH = Path(os.getenv("CHROMA_PATH", "./chroma_db")).resolve()
 
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "Chat_Bot")

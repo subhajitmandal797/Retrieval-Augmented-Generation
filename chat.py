@@ -161,7 +161,7 @@ system_prompt = (
     "When giving an answer: "
 "- Extract the necessary information directly from the chunks. "
 "- Cite the exact file/source you used in square brackets like [filename]. "
-"- If the answer is not found in the provided chunks, use the OpenAI API (with the given API key) to answer the question."
+"- If the answer is not found in the provided chunks, Say no information is related to the query is found in the documents."
 )
 context = compose_context(docs, metas)
 final_user = f"Question: {user_query}\n\nContext:\n{context}"

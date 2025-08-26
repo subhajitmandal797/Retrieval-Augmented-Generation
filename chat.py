@@ -26,18 +26,42 @@ from openai import OpenAI
 
 
 # -------------------- Config --------------------
-env_path = Path(__file__).parent / ".env"
-load_dotenv(dotenv_path=env_path, override=True)
+# -------------------- Config (Streamlit Secrets + .env fallback) --------------------
+import os
+from pathlib import Path
 
-# IMPORTANT: use the EXACT DB path + collection you indexed earlier
+# 1) Try Streamlit secrets; if not available, use dotenv/OS env
+try:
+    import streamlit as st
+    _SECRETS = dict(st.secrets)
+except Exception:
+    _SECRETS = {}
 
-CHROMA_PATH = Path(os.getenv("CHROMA_PATH", "./chroma_db")).resolve()
+if not _SECRETS:
+    try:
+        from dotenv import load_dotenv
+        env_path = Path(__file__).parent / ".env"
+        load_dotenv(dotenv_path=env_path, override=True)
+    except Exception:
+        pass
 
-COLLECTION_NAME = os.getenv("COLLECTION_NAME", "Chat_Bot")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-small")
-CHAT_MODEL = os.getenv("CHAT_MODEL", "gpt-4o-mini")
-TOPK = int(os.getenv("TOPK", "4"))
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+def env_get(key: str, default=None):
+    if key in _SECRETS:
+        return _SECRETS[key]
+    return os.getenv(key, default)
+
+CHROMA_PATH     = Path(env_get("CHROMA_PATH", "./chroma_db")).resolve()
+COLLECTION_NAME = env_get("COLLECTION_NAME", "Chat_Bot")
+EMBED_MODEL     = env_get("EMBED_MODEL", "text-embedding-3-small")
+CHAT_MODEL      = env_get("CHAT_MODEL", "gpt-4o-mini")
+TOPK            = int(env_get("TOPK", 4))
+
+from openai import OpenAI
+OPENAI_API_KEY = env_get("OPENAI_API_KEY", "")
+if not OPENAI_API_KEY:
+    raise RuntimeError("Missing OPENAI_API_KEY (set in Streamlit Secrets or .env)")
+client = OpenAI(api_key=OPENAI_API_KEY)
+
 
 # -------------------- Helpers --------------------
 def compose_context(documents: List[str], metadatas: List[Dict[str, Any]], cap: int = 8000) -> str:
@@ -133,9 +157,11 @@ with st.spinner("Thinking…"):
         st.exception(e)
 
 system_prompt = (
-    "You are a helpful assistant that answers using only the provided data excerpts. "
-    "Cite each file/source you rely on in square brackets like [filename]. "
-    "If the answer isn't in the excerpts, say you don't know."
+    "You are a helpful assistant that answers questions using only the provided document chunks"
+    "When giving an answer: "
+"- Extract the necessary information directly from the chunks. "
+"- Cite the exact file/source you used in square brackets like [filename]. "
+"- If the answer is not found in the provided chunks, use the OpenAI API (with the given API key) to answer the question."
 )
 context = compose_context(docs, metas)
 final_user = f"Question: {user_query}\n\nContext:\n{context}"

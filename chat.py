@@ -133,7 +133,7 @@ with st.spinner("Thinking…"):
         st.exception(e)
 
 system_prompt = (
-    "You are a helpful assistant that answers using only the provided KB excerpts. "
+    "You are a helpful assistant that answers using only the provided data excerpts. "
     "Cite each file/source you rely on in square brackets like [filename]. "
     "If the answer isn't in the excerpts, say you don't know."
 )

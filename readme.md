@@ -1,10 +1,6 @@
 <h1>Build a RAG with Python, ChromaDB and OpenAI</h1>
 
 <div>
-
-<a href="https://www.youtube.com/watch?v=JfSmffOyV-8">
-    <img src="thumbnail_small.png" alt="Thomas Janssen Youtube" width="200"/>
-</a>
 </div>
 
 <h2>Prerequisites</h2>

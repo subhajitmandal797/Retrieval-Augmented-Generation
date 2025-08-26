@@ -1,6 +1,5 @@
-<h1>Build a RAG in 10 minutes with Python, ChromaDB and OpenAI</h1>
+<h1>Build a RAG with Python, ChromaDB and OpenAI</h1>
 
-<h2>Watch the full tutorial on my YouTube Channel</h2>
 <div>
 
 <a href="https://www.youtube.com/watch?v=JfSmffOyV-8">
